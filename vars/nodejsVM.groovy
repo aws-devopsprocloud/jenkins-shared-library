@@ -1,0 +1,108 @@
+pipeline {
+    agent {
+        node {
+            label 'AGENT-1'
+        }
+    } 
+    options {
+        disableConcurrentBuilds()
+        ansiColor('xterm')
+        timeout(time: 1, unit: 'HOURS')
+    }
+    environment {
+        packageVersion = ''
+        nexusURL = '172.31.10.70:8081'
+    }
+    parameters {
+        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Toggle this value')
+    }
+    stages {
+        stage('Getting the Package Version') {
+            steps {
+                script {
+                    def packageJSON = readJSON file: 'package.json'
+                    packageVersion = packageJSON.version
+                    echo "App Version is $packageVersion"
+                }
+            }
+        }
+        stage('Installing NodeJS') {
+            steps {
+                sh """
+                   sudo  dnf module disable nodejs -y
+                    sudo dnf module enable nodejs:20 -y
+                    sudo dnf install nodejs -y
+                """
+            }
+        }
+        stage('Installing Dependencies') {
+            steps {
+                sh """
+                    npm install
+                """
+            }
+        }
+        stage('SonarQube Scanning') {
+            steps {
+                sh """
+                    sonar-scanner
+                """
+            }
+        }
+        stage('Building the Artifacts') {
+            steps {
+                sh """
+                    ls -la
+                    sudo dnf install zip -y
+                    zip -q -r catalogue.zip ./* -x ".git" -x "*.zip"
+                    ls -ltr
+                """
+            }
+        }
+        stage('Uploading the Artifacts to Nexus') {
+            steps {
+                nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: "${nexusURL}",
+                    groupId: 'com.roboshop',
+                    version: "${packageVersion}",
+                    repository: 'catalogue',
+                    credentialsId: 'nexus-auth',
+                    artifacts: [
+                        [artifactId: 'catalogue',
+                        classifier: '',
+                        file: 'catalogue.zip',
+                        type: 'zip']
+                    ]
+                )
+            }
+        }
+        stage('Giving the Package Version & Environment to CATALOGUE-CD') {
+            when {
+                expression {
+                    params.DEPLOY
+                }
+                    
+            }
+            steps {
+                build job: 'CATALOGUE-CD', 
+                parameters: [
+                    string(name: 'ENVIRONMENT', value: 'dev'),
+                    string(name: 'VERSION', value: "${packageVersion}")
+                ]
+            }
+        }
+    }
+    post {
+        always {
+            echo 'PIPELINE EXECUTION IS COMPLETED'
+        }
+        failure {
+            echo 'The pipeline is FAILED'
+        }
+        success {
+            echo 'The pipeline is SUCESS'
+        }
+    }
+}
