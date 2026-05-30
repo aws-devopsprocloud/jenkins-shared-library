@@ -79,7 +79,7 @@ def call (Map configMap){
                 )
             }
         }
-        stage("Giving the Package Version & Environment to ${configMap.component}-CD") {
+        stage('Giving the Package Version & Environment to "${configMap.component}-CD') {
             when {
                 expression {
                     params.DEPLOY
