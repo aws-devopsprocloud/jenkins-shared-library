@@ -79,16 +79,16 @@ def call (Map configMap){
                 )
             }
         }
-        stage('Giving the Package Version & Environment to "${configMap.component}-CD') {
+        stage('Giving the Package Version & Environment to CD') {
             when {
                 expression {
                     params.DEPLOY
                 }                  
             }
             steps {
-                build job: "../${configMap.component}-CD", 
+                build job: "${configMap.component}-CD", 
                 parameters: [
-                    string(name: 'ENVIRONMENT', value: 'dev'),
+                    string(name: 'ENVIRONMENT', value: ''),
                     string(name: 'VERSION', value: "${packageVersion}")
                 ]
             }
