@@ -55,7 +55,7 @@ def call (Map configMap){
                 sh """
                     ls -la
                     sudo dnf install zip -y
-                    zip -q -r catalogue.zip ./* -x ".git" -x "*.zip"
+                    zip -q -r ${configMap.component}.zip ./* -x ".git" -x "*.zip"
                     ls -ltr
                 """
             }
@@ -68,26 +68,25 @@ def call (Map configMap){
                     nexusUrl: "${nexusURL}",
                     groupId: 'com.roboshop',
                     version: "${packageVersion}",
-                    repository: 'catalogue',
+                    repository: "${configMap.component}",
                     credentialsId: 'nexus-auth',
                     artifacts: [
-                        [artifactId: 'catalogue',
+                        [artifactId: "${configMap.component}",
                         classifier: '',
-                        file: 'catalogue.zip',
+                        file: "${configMap.component}.zip",
                         type: 'zip']
                     ]
                 )
             }
         }
-        stage('Giving the Package Version & Environment to CATALOGUE-CD') {
+        stage("Giving the Package Version & Environment to ${configMap.component}-CD") {
             when {
                 expression {
                     params.DEPLOY
-                }
-                    
+                }                  
             }
             steps {
-                build job: 'CATALOGUE-CD', 
+                build job: "${configMap.component}-CD", 
                 parameters: [
                     string(name: 'ENVIRONMENT', value: 'dev'),
                     string(name: 'VERSION', value: "${packageVersion}")
