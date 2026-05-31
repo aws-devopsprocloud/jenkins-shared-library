@@ -90,7 +90,7 @@ def call (Map configMap){
                         artifacts: [
                             [artifactId: "${configMap.component}",
                             classifier: '',
-                            file: "${configMap.component}.jar",
+                            file: "/home/ec2-user/jenkins-agent/workspace/ipping-ci-multi-branch_feature-1/target/${configMap.component}.jar",
                             type: 'jar']
                         ]
                     )
