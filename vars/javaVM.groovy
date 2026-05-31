@@ -67,50 +67,50 @@ def call (Map configMap){
                 echo "Code will be scanned by Sonar-Qube"
             }
         }
-    //     stage('Building the Artifacts') {
-    //         steps {
-    //             sh """
-    //                 ls -la
-    //                 sudo dnf install zip -y
-    //                 zip -q -r ${configMap.component}.jar ./* -x ".git" -x "*.zip"
-    //                 ls -ltr
-    //             """
-    //         }
-    //     }
-    //     stage('Uploading the Artifacts to Nexus') {
-    //         steps {
-    //             nexusArtifactUploader(
-    //                 nexusVersion: 'nexus3',
-    //                 protocol: 'http',
-    //                 nexusUrl: "${nexusURL}",
-    //                 groupId: 'com.roboshop',
-    //                 version: "${packageVersion}",
-    //                 repository: "${configMap.component}",
-    //                 credentialsId: 'nexus-auth',
-    //                 artifacts: [
-    //                     [artifactId: "${configMap.component}",
-    //                     classifier: '',
-    //                     file: "${configMap.component}.zip",
-    //                     type: 'zip']
-    //                 ]
-    //             )
-    //         }
-    //     }
-    //     stage('Giving the Package Version & Environment to CD') {
-    //         when {
-    //             expression {
-    //                 params.DEPLOY
-    //             }                  
-    //         }
-    //         steps {
-    //             build job: "${configMap.component}-CD-${params.ENVIRONMENT}", 
-    //             parameters: [
-    //                 string(name: 'ENVIRONMENT', value: params.ENVIRONMENT),
-    //                 string(name: 'VERSION', value: "${packageVersion}")
-    //             ]
-    //         }
-    //     }
-    // }
+        // stage('Building the Artifacts') {
+        //     steps {
+        //         sh """
+        //             ls -la
+        //             sudo dnf install zip -y
+        //             zip -q -r ${configMap.component}.jar ./* -x ".git" -x "*.zip"
+        //             ls -ltr
+        //         """
+        //     }
+        // }
+        stage('Uploading the Artifacts to Nexus') {
+            steps {
+                nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: "${nexusURL}",
+                    groupId: 'com.roboshop',
+                    version: "${packageVersion}",
+                    repository: "${configMap.component}",
+                    credentialsId: 'nexus-auth',
+                    artifacts: [
+                        [artifactId: "${configMap.component}",
+                        classifier: '',
+                        file: "${configMap.component}.jar",
+                        type: 'jar']
+                    ]
+                )
+            }
+        }
+        stage('Giving the Package Version & Environment to CD') {
+            when {
+                expression {
+                    params.DEPLOY
+                }                  
+            }
+            steps {
+                build job: "${configMap.component}-CD-${params.ENVIRONMENT}", 
+                parameters: [
+                    string(name: 'ENVIRONMENT', value: params.ENVIRONMENT),
+                    string(name: 'VERSION', value: "${packageVersion}")
+                ]
+            }
+        }
+    }
     }
     post {
         always {
