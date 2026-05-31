@@ -87,7 +87,7 @@ def call (Map configMap){
                         artifacts: [
                             [artifactId: "${configMap.component}",
                             classifier: '',
-                            file: "${env.WORKSPACE}/${configMap.component}.zip",
+                            file: "${configMap.component}.zip",
                             type: 'zip']
                         ]
                     )
