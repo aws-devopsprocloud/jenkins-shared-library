@@ -93,7 +93,7 @@ def call (Map configMap){
                 }                  
             }
             steps {
-                build job: "${configMap.component}-CD", 
+                build job: "${configMap.component}-CD-${params.ENVIRONMENT}", 
                 parameters: [
                     string(name: 'ENVIRONMENT', value: params.ENVIRONMENT),
                     string(name: 'VERSION', value: "${packageVersion}")
