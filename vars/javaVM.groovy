@@ -48,8 +48,6 @@ def call (Map configMap){
                     sh '''
                         pwd
                         echo "Current directory: $(pwd)"
-                        // cd /home/ec2-user/jenkins-agent/workspace/ipping-ci-multi-branch_feature-1/target
-                        mv target/shipping-1.0.jar shipping.jar 
                     '''
                 }
             }
