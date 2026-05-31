@@ -16,7 +16,7 @@ def call (Map configMap){
     }
     parameters {
         booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Toggle this value')
-        choice(name: 'ENVIRONMENT', choices: ['dev', 'uat', 'prod'], description: 'Specify the target Environment?'),
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'uat', 'prod'], description: 'Specify the target Environment?')
     }
     stages {
         stage('Getting the Package Version') {
