@@ -111,6 +111,7 @@ def call (Map configMap){
                 }
             }
         }
+    }
         post {
             always {
                 echo 'PIPELINE EXECUTION IS COMPLETED'
