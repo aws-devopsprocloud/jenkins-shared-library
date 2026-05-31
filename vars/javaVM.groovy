@@ -45,13 +45,13 @@ def call (Map configMap){
         }
         stage('Renaming the Shipping-1.0') {
             steps {
-                sh """
+                sh '''
                     pwd
                     echo "Current directory: $(pwd)"
                     cd /home/ec2-user/jenkins-agent/workspace/ipping-ci-multi-branch_feature-1/target
                     pwd
                     mvn clean package 
-                """
+                '''
             }
         }
         stage('Unit Tests') {
