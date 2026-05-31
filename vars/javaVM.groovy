@@ -48,9 +48,8 @@ def call (Map configMap){
                     sh '''
                         pwd
                         echo "Current directory: $(pwd)"
-                        cd /home/ec2-user/jenkins-agent/workspace/ipping-ci-multi-branch_feature-1/target
-                        pwd
-                        mv shipping-1.0.jar shipping.jar 
+                        // cd /home/ec2-user/jenkins-agent/workspace/ipping-ci-multi-branch_feature-1/target
+                        mv target/shipping-1.0.jar shipping.jar 
                     '''
                 }
             }
@@ -67,16 +66,16 @@ def call (Map configMap){
                     echo "Code will be scanned by Sonar-Qube"
                 }
             }
-            // stage('Building the Artifacts') {
-            //     steps {
-            //         sh """
-            //             ls -la
-            //             sudo dnf install zip -y
-            //             zip -q -r ${configMap.component}.jar ./* -x ".git" -x "*.zip"
-            //             ls -ltr
-            //         """
-            //     }
-            // }
+            stage('Building the Artifacts') {
+                steps {
+                    sh """
+                        ls -la
+                        sudo dnf install zip -y
+                        zip -q -r ${configMap.component}.zip ./* -x ".git" -x "*.zip"
+                        ls -ltr
+                    """
+                }
+            }
             stage('Uploading the Artifacts to Nexus') {
                 steps {
                     nexusArtifactUploader(
@@ -90,8 +89,8 @@ def call (Map configMap){
                         artifacts: [
                             [artifactId: "${configMap.component}",
                             classifier: '',
-                            file: "/home/ec2-user/jenkins-agent/workspace/ipping-ci-multi-branch_feature-1/target/${configMap.component}.jar",
-                            type: 'jar']
+                            file: "/home/ec2-user/jenkins-agent/workspace/ipping-ci-multi-branch_feature-1/target/${configMap.component}.zip",
+                            type: 'zip']
                         ]
                     )
                 }
