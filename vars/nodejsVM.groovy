@@ -53,6 +53,7 @@ def call (Map configMap){
                 // sh """
                 //     sonar-scanner
                 // """
+                echo "Code will be scanned by Sonar-Qube"
             }
         }
         stage('Building the Artifacts') {
