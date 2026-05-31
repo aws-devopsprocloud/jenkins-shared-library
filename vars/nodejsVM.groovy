@@ -16,6 +16,7 @@ def call (Map configMap){
     }
     parameters {
         booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Toggle this value')
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'uat', 'prod'], description: 'Specify the environment'),
     }
     stages {
         stage('Getting the Package Version') {
@@ -94,7 +95,7 @@ def call (Map configMap){
             steps {
                 build job: "${configMap.component}-CD", 
                 parameters: [
-                    string(name: 'ENVIRONMENT', value: ''),
+                    string(name: 'ENVIRONMENT', value: params.ENVIRONMENT),
                     string(name: 'VERSION', value: "${packageVersion}")
                 ]
             }
