@@ -43,26 +43,30 @@ def call (Map configMap){
                 """
             }
         }
-    //     stage('Renaming the Shipping-1.0') {
-    //         steps {
-    //             sh """
-    //                 mvn clean package 
-    //             """
-    //         }
-    //     }
-    //     stage('Unit Tests') {
-    //         steps {
-    //             echo "Unit tests will run here"
-    //         }
-    //     }
-    //     stage('SonarQube Scanning') {
-    //         steps {
-    //             // sh """
-    //             //     sonar-scanner
-    //             // """
-    //             echo "Code will be scanned by Sonar-Qube"
-    //         }
-    //     }
+        stage('Renaming the Shipping-1.0') {
+            steps {
+                sh """
+                    pwd
+                    echo "Current directory: $(pwd)"
+                    cd /home/ec2-user/jenkins-agent/workspace/ipping-ci-multi-branch_feature-1/target
+                    pwd
+                    mvn clean package 
+                """
+            }
+        }
+        stage('Unit Tests') {
+            steps {
+                echo "Unit tests will run here"
+            }
+        }
+        stage('SonarQube Scanning') {
+            steps {
+                // sh """
+                //     sonar-scanner
+                // """
+                echo "Code will be scanned by Sonar-Qube"
+            }
+        }
     //     stage('Building the Artifacts') {
     //         steps {
     //             sh """
