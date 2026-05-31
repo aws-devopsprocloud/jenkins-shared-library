@@ -12,7 +12,7 @@ def call (Map configMap){
     }
     environment {
         packageVersion = ''
-        nexusURL = '172.31.10.70:8081'
+        nexusURL = '172.31.12.76:8081'
     }
     parameters {
         booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Toggle this value')
@@ -43,11 +43,16 @@ def call (Map configMap){
                 """
             }
         }
+        stage('Unit Tests') {
+            steps {
+                echo "Unit tests will run here"
+            }
+        }
         stage('SonarQube Scanning') {
             steps {
-                sh """
-                    sonar-scanner
-                """
+                // sh """
+                //     sonar-scanner
+                // """
             }
         }
         stage('Building the Artifacts') {
