@@ -27,7 +27,7 @@ def call (Map configMap){
         stages {
             stage('read-version'){
                 steps{
-                    dir("${config.component}") {
+                    dir("${configMap.component}") {
                         script {
                             def packageJson = readJSON file: 'package.json'
                             // Extract the version property
@@ -39,7 +39,7 @@ def call (Map configMap){
             }
             stage('install-dependencies') {
                 steps {
-                    dir("${config.component}") {
+                    dir("${configMap.component}") {
                         script {
                             sh """
                                 npm install
@@ -52,7 +52,7 @@ def call (Map configMap){
             stage('unit-tests') {
                 steps {
                     script {
-                        dir("${config.component}") {
+                        dir("${configMap.component}") {
                             try {
                                 sh """
                                     npm test
@@ -68,7 +68,7 @@ def call (Map configMap){
             }
             stage('sonar-analysis') {
                 steps {
-                    dir("${config.component}") {
+                    dir("${configMap.component}") {
                     // 'My SonarQube Server' must match the name configured in Jenkins System Settings
                         withSonarQubeEnv('sonarqube-server') {
                             sh "${tool 'sonar-8'}/bin/sonar-scanner"
@@ -78,7 +78,7 @@ def call (Map configMap){
             }
             stage('sonar-scan') {
                 steps {
-                    dir("${config.component}") {
+                    dir("${configMap.component}") {
                         timeout(time: 10, unit: 'MINUTES') {
                             script {
                                 def qg = waitForQualityGate() // Pauses pipeline
@@ -137,7 +137,7 @@ def call (Map configMap){
             }
             stage('build-image') {
                 steps {
-                    dir("${config.component}") {
+                    dir("${configMap.component}") {
                         script {
                             // in this block we get aws authentication
                             try {
