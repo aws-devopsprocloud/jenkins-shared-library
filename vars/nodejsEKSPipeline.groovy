@@ -27,20 +27,24 @@ def call (Map configMap){
         stages {
             stage('read-version'){
                 steps{
-                    script {
-                        def packageJson = readJSON file: 'package.json'
-                        // Extract the version property
-                        appVersion = packageJson.version
-                        echo "The application version is: ${appVersion}"
+                    dir("${config.component}") {
+                        script {
+                            def packageJson = readJSON file: 'package.json'
+                            // Extract the version property
+                            appVersion = packageJson.version
+                            echo "The application version is: ${appVersion}"
+                        }
                     }
                 }
             }
             stage('install-dependencies') {
                 steps {
-                    script {
-                        sh """
-                            npm install
-                        """
+                    dir("${config.component}") {
+                        script {
+                            sh """
+                                npm install
+                            """
+                        }
                     } 
                 }
             }
@@ -48,37 +52,43 @@ def call (Map configMap){
             stage('unit-tests') {
                 steps {
                     script {
-                        try {
-                            sh """
-                                npm test
-                            """
-                            utils.updateCommitStatus('SUCCESS', 'Unit tests passed', 'unit-tests')
-                        } catch (Exception e) {
-                            utils.updateCommitStatus('FAILURE', 'Unit tests failed', 'unit-tests')
-                            throw e
+                        dir("${config.component}") {
+                            try {
+                                sh """
+                                    npm test
+                                """
+                                utils.updateCommitStatus('SUCCESS', 'Unit tests passed', 'unit-tests')
+                            } catch (Exception e) {
+                                utils.updateCommitStatus('FAILURE', 'Unit tests failed', 'unit-tests')
+                                throw e
+                            }
                         }
                     } 
                 }
             }
             stage('sonar-analysis') {
                 steps {
+                    dir("${config.component}") {
                     // 'My SonarQube Server' must match the name configured in Jenkins System Settings
-                    withSonarQubeEnv('sonarqube-server') {
-                        sh "${tool 'sonar-8'}/bin/sonar-scanner"
+                        withSonarQubeEnv('sonarqube-server') {
+                            sh "${tool 'sonar-8'}/bin/sonar-scanner"
+                        }
                     }
                 }
             }
             stage('sonar-scan') {
                 steps {
-                    timeout(time: 10, unit: 'MINUTES') {
-                        script {
-                            def qg = waitForQualityGate() // Pauses pipeline
-                            if (qg.status != 'OK') {
-                                utils.updateCommitStatus('FAILURE', 'Sonar Scan failed', 'sonar-scan')
-                                error "Pipeline aborted: ${qg.status}"
-                            }
-                            else {
-                                utils.updateCommitStatus('success', 'Sonar Scan success', 'sonar-scan')
+                    dir("${config.component}") {
+                        timeout(time: 10, unit: 'MINUTES') {
+                            script {
+                                def qg = waitForQualityGate() // Pauses pipeline
+                                if (qg.status != 'OK') {
+                                    utils.updateCommitStatus('FAILURE', 'Sonar Scan failed', 'sonar-scan')
+                                    error "Pipeline aborted: ${qg.status}"
+                                }
+                                else {
+                                    utils.updateCommitStatus('success', 'Sonar Scan success', 'sonar-scan')
+                                }
                             }
                         }
                     }
@@ -127,22 +137,24 @@ def call (Map configMap){
             }
             stage('build-image') {
                 steps {
-                    script {
-                        // in this block we get aws authentication
-                        try {
-                            withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                                sh """
-                                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.us-east-1.amazonaws.com
-                                    docker build -t ${acc_id}.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${appVersion} .
-                                """
+                    dir("${config.component}") {
+                        script {
+                            // in this block we get aws authentication
+                            try {
+                                withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                                    sh """
+                                        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.us-east-1.amazonaws.com
+                                        docker build -t ${acc_id}.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${appVersion} .
+                                    """
+                                }
+                                utils.updateCommitStatus('success', 'Docker image build', 'build-image')
                             }
-                            utils.updateCommitStatus('success', 'Docker image build', 'build-image')
+                            catch (Exception e) {
+                                utils.updateCommitStatus('failure', 'Docker image faied', 'build-image')
+                                throw e
+                            }
+                            
                         }
-                        catch (Exception e) {
-                            utils.updateCommitStatus('failure', 'Docker image faied', 'build-image')
-                            throw e
-                        }
-                        
                     }
                 }
             }
