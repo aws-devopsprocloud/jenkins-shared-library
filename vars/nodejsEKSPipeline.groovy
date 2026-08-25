@@ -168,12 +168,14 @@ def call (Map configMap){
                                 --format table --output trivy-os-report.txt \
                                 ${acc_id}.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${appVersion}
                             """, returnStatus: true)
+                                sh "cat trivy-os-report.txt"
 
                             def dockerfileScan = sh(script: """
                                 trivy config --severity HIGH,CRITICAL --exit-code 1 \
                                 --format table --output trivy-dockerfile-report.txt \
                                 Dockerfile
                             """, returnStatus: true)
+                                sh "cat trivy-dockerfile-report.txt"
 
                             archiveArtifacts artifacts: 'trivy-*.txt', allowEmptyArchive: true
 
