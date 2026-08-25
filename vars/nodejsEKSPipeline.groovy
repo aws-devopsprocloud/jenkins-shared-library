@@ -165,7 +165,7 @@ def call (Map configMap){
                             trivy image --scanners vuln --pkg-types os \
                             --severity HIGH,CRITICAL --exit-code 1 \
                             --format table --output trivy-os-report.txt \
-                            160885265516.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${appVersion}
+                            ${acc_id}.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${appVersion}
                         """, returnStatus: true)
 
                         def dockerfileScan = sh(script: """
