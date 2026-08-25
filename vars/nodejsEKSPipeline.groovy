@@ -102,7 +102,7 @@ def call (Map configMap){
                                 sh '''
                                     set -e
 
-                                    REPO="${org}/${roboshop-project}/${component}"
+                                    REPO="${org}/roboshop-project/${component}"
 
                                     curl -s -L \
                                     -H "Accept: application/vnd.github+json" \
