@@ -1,5 +1,5 @@
 def updateCommitStatus(String state, String description, String context = 'Jenkins CI') {
-    withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
+    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
         def repoUrl = sh(script: 'git remote get-url origin', returnStdout: true).trim()
         def repoPath = repoUrl.replaceAll(/.*github\.com[\/:]/, '').replaceAll(/\.git$/, '')
 
@@ -44,7 +44,7 @@ def updateCommitStatus(String state, String description, String context = 'Jenki
 }
 
 def validateCommitStatus(String commitSha, List requiredContexts) {
-    withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
+    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
         def repoUrl = sh(script: 'git remote get-url origin', returnStdout: true).trim()
         def repoPath = repoUrl.replaceAll(/.*github\.com[\/:]/, '').replaceAll(/\.git$/, '')
 
@@ -98,7 +98,7 @@ def getPodIP(String namespace, String component) {
 }
 
 def tagCommit(String commitSha, String tag) {
-    withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
+    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
         def repoUrl = sh(script: 'git remote get-url origin', returnStdout: true).trim()
         def repoPath = repoUrl.replaceAll(/.*github\.com[\/:]/, '').replaceAll(/\.git$/, '')
 
@@ -206,7 +206,7 @@ def safeTransitionJiraIssue(String issueKey, String targetStatus) {
 }
 
 def createPullRequest(String base = 'main', String title = '', String body = '') {
-    withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
+    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
         def repoUrl = sh(script: 'git remote get-url origin', returnStdout: true).trim()
         def repoPath = repoUrl.replaceAll(/.*github\.com[\/:]/, '').replaceAll(/\.git$/, '')
         def head = env.BRANCH_NAME

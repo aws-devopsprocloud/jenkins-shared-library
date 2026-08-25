@@ -98,7 +98,7 @@ def call (Map configMap){
                 steps {
                     script {
                         try{
-                            withCredentials([string(credentialsId: 'github-pat', variable: 'GH_TOKEN')]) {
+                            withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
                                 sh '''
                                     set -e
 
