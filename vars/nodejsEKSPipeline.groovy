@@ -160,27 +160,29 @@ def call (Map configMap){
             }
             stage('trivy-scan') {
                 steps {
-                    script {
-                        def osScan = sh(script: """
-                            trivy image --scanners vuln --pkg-types os \
-                            --severity HIGH,CRITICAL --exit-code 1 \
-                            --format table --output trivy-os-report.txt \
-                            ${acc_id}.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${appVersion}
-                        """, returnStatus: true)
+                    dir("${configMap.component}") {
+                        script {
+                            def osScan = sh(script: """
+                                trivy image --scanners vuln --pkg-types os \
+                                --severity HIGH,CRITICAL --exit-code 1 \
+                                --format table --output trivy-os-report.txt \
+                                ${acc_id}.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${appVersion}
+                            """, returnStatus: true)
 
-                        def dockerfileScan = sh(script: """
-                            trivy config --severity HIGH,CRITICAL --exit-code 1 \
-                            --format table --output trivy-dockerfile-report.txt \
-                            Dockerfile
-                        """, returnStatus: true)
+                            def dockerfileScan = sh(script: """
+                                trivy config --severity HIGH,CRITICAL --exit-code 1 \
+                                --format table --output trivy-dockerfile-report.txt \
+                                Dockerfile
+                            """, returnStatus: true)
 
-                        archiveArtifacts artifacts: 'trivy-*.txt', allowEmptyArchive: true
+                            archiveArtifacts artifacts: 'trivy-*.txt', allowEmptyArchive: true
 
-                        if (osScan != 0 || dockerfileScan != 0) {
-                            utils.updateCommitStatus('failure', 'trivy scan failed', 'trivy-scan')
-                            error("Trivy found HIGH/CRITICAL issues — OS scan exit: ${osScan}, Dockerfile scan exit: ${dockerfileScan}")
+                            if (osScan != 0 || dockerfileScan != 0) {
+                                utils.updateCommitStatus('failure', 'trivy scan failed', 'trivy-scan')
+                                error("Trivy found HIGH/CRITICAL issues — OS scan exit: ${osScan}, Dockerfile scan exit: ${dockerfileScan}")
+                            }
+                            utils.updateCommitStatus('success', 'trivy scan success', 'trivy-scan')
                         }
-                        utils.updateCommitStatus('success', 'trivy scan success', 'trivy-scan')
                     }
                 }
             }
