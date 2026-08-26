@@ -29,10 +29,7 @@ def call (Map configMap){
                 steps{
                     dir("${configMap.component}") {
                         script {
-                            appVersion = sh(
-                                script: "readMavenPom(file: 'pom.xml').version",
-                                returnStdout: true
-                            ).trim()
+                            appVersion = readMavenPom(file: 'pom.xml').version,
                             echo "Building version ${appVersion}"
                         }
                     }
