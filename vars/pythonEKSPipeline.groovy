@@ -40,13 +40,11 @@ def call (Map configMap){
             }
             stage('install-dependencies') {
                 steps {
-                    dir("${configMap.component}") {
                         script {
                             sh """
                                 pip3 install -r requirements.txt --quiet
                             """
                         }
-                    } 
                 }
             }
             // this command gives us coverage report and test cases report, sonarqube access this to check quality gate
@@ -69,27 +67,23 @@ def call (Map configMap){
             // }
             stage('sonar-analysis') {
                 steps {
-                    dir("${configMap.component}") {
-                    // 'My SonarQube Server' must match the name configured in Jenkins System Settings
-                        withSonarQubeEnv('sonarqube-server') {
-                            sh "${tool 'sonar-8'}/bin/sonar-scanner"
-                        }
+                // 'My SonarQube Server' must match the name configured in Jenkins System Settings
+                    withSonarQubeEnv('sonarqube-server') {
+                        sh "${tool 'sonar-8'}/bin/sonar-scanner"
                     }
                 }
             }
             stage('sonar-scan') {
                 steps {
-                    dir("${configMap.component}") {
-                        timeout(time: 10, unit: 'MINUTES') {
-                            script {
-                                def qg = waitForQualityGate() // Pauses pipeline
-                                if (qg.status != 'OK') {
-                                    utils.updateCommitStatus('FAILURE', 'Sonar Scan failed', 'sonar-scan')
-                                    error "Pipeline aborted: ${qg.status}"
-                                }
-                                else {
-                                    utils.updateCommitStatus('success', 'Sonar Scan success', 'sonar-scan')
-                                }
+                    timeout(time: 10, unit: 'MINUTES') {
+                        script {
+                            def qg = waitForQualityGate() // Pauses pipeline
+                            if (qg.status != 'OK') {
+                                utils.updateCommitStatus('FAILURE', 'Sonar Scan failed', 'sonar-scan')
+                                error "Pipeline aborted: ${qg.status}"
+                            }
+                            else {
+                                utils.updateCommitStatus('success', 'Sonar Scan success', 'sonar-scan')
                             }
                         }
                     }
@@ -138,54 +132,50 @@ def call (Map configMap){
             }
             stage('build-image') {
                 steps {
-                    dir("${configMap.component}") {
-                        script {
-                            // in this block we get aws authentication
-                            try {
-                                withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                                    sh """
-                                        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.us-east-1.amazonaws.com
-                                        docker build -t ${acc_id}.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${appVersion} .
-                                    """
-                                }
-                                utils.updateCommitStatus('success', 'Docker image build', 'build-image')
+                    script {
+                        // in this block we get aws authentication
+                        try {
+                            withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                                sh """
+                                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.us-east-1.amazonaws.com
+                                    docker build -t ${acc_id}.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${appVersion} .
+                                """
                             }
-                            catch (Exception e) {
-                                utils.updateCommitStatus('failure', 'Docker image faied', 'build-image')
-                                throw e
-                            }
-                            
+                            utils.updateCommitStatus('success', 'Docker image build', 'build-image')
                         }
+                        catch (Exception e) {
+                            utils.updateCommitStatus('failure', 'Docker image faied', 'build-image')
+                            throw e
+                        }
+                        
                     }
                 }
             }
             stage('trivy-scan') {
                 steps {
-                    dir("${configMap.component}") {
-                        script {
-                            def osScan = sh(script: """
-                                trivy image --scanners vuln --pkg-types os \
-                                --severity HIGH,CRITICAL --exit-code 1 \
-                                --format table --output trivy-os-report.txt \
-                                ${acc_id}.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${appVersion}
-                            """, returnStatus: true)
-                                sh "cat trivy-os-report.txt"
+                    script {
+                        def osScan = sh(script: """
+                            trivy image --scanners vuln --pkg-types os \
+                            --severity HIGH,CRITICAL --exit-code 1 \
+                            --format table --output trivy-os-report.txt \
+                            ${acc_id}.dkr.ecr.us-east-1.amazonaws.com/${project}/${component}:${appVersion}
+                        """, returnStatus: true)
+                            sh "cat trivy-os-report.txt"
 
-                            def dockerfileScan = sh(script: """
-                                trivy config --severity HIGH,CRITICAL --exit-code 1 \
-                                --format table --output trivy-dockerfile-report.txt \
-                                Dockerfile
-                            """, returnStatus: true)
-                                sh "cat trivy-dockerfile-report.txt"
+                        def dockerfileScan = sh(script: """
+                            trivy config --severity HIGH,CRITICAL --exit-code 1 \
+                            --format table --output trivy-dockerfile-report.txt \
+                            Dockerfile
+                        """, returnStatus: true)
+                            sh "cat trivy-dockerfile-report.txt"
 
-                            archiveArtifacts artifacts: 'trivy-*.txt', allowEmptyArchive: true
+                        archiveArtifacts artifacts: 'trivy-*.txt', allowEmptyArchive: true
 
-                            if (osScan != 0 || dockerfileScan != 0) {
-                                utils.updateCommitStatus('failure', 'trivy scan failed', 'trivy-scan')
-                                error("Trivy found HIGH/CRITICAL issues — OS scan exit: ${osScan}, Dockerfile scan exit: ${dockerfileScan}")
-                            }
-                            utils.updateCommitStatus('success', 'trivy scan success', 'trivy-scan')
+                        if (osScan != 0 || dockerfileScan != 0) {
+                            utils.updateCommitStatus('failure', 'trivy scan failed', 'trivy-scan')
+                            error("Trivy found HIGH/CRITICAL issues — OS scan exit: ${osScan}, Dockerfile scan exit: ${dockerfileScan}")
                         }
+                        utils.updateCommitStatus('success', 'trivy scan success', 'trivy-scan')
                     }
                 }
             }
