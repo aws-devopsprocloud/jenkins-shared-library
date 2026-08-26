@@ -37,6 +37,7 @@ def call (Map configMap){
                 steps {
                     script {
                         sh """
+                            sudo dnf install -y maven
                             mvn dependency:resolve -q
                         """
                     }
