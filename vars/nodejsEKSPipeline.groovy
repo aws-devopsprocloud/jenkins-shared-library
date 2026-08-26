@@ -48,16 +48,14 @@ def call (Map configMap){
             stage('unit-tests') {
                 steps {
                     script {
-                        dir("${configMap.component}") {
-                            try {
-                                sh """
-                                    npm test
-                                """
-                                utils.updateCommitStatus('SUCCESS', 'Unit tests passed', 'unit-tests')
-                            } catch (Exception e) {
-                                utils.updateCommitStatus('FAILURE', 'Unit tests failed', 'unit-tests')
-                                throw e
-                            }
+                        try {
+                            sh """
+                                npm test
+                            """
+                            utils.updateCommitStatus('SUCCESS', 'Unit tests passed', 'unit-tests')
+                        } catch (Exception e) {
+                            utils.updateCommitStatus('FAILURE', 'Unit tests failed', 'unit-tests')
+                            throw e
                         }
                     } 
                 }
