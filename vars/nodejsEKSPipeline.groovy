@@ -44,7 +44,7 @@ def call (Map configMap){
                     }
                 }
             }
-            this command gives us coverage report and test cases report, sonarqube access this to check quality gate
+            // this command gives us coverage report and test cases report, sonarqube access this to check quality gate
             stage('unit-tests') {
                 steps {
                     script {
