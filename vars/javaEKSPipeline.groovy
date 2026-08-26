@@ -28,10 +28,7 @@ def call (Map configMap){
             stage('read-version'){
                 steps{
                     script {
-                        appVersion = sh(
-                            script: "readMavenPom(file: 'pom.xml').version",
-                            returnStdout: true
-                        ).trim()
+                        appVersion = readMavenPom(file: 'pom.xml').version
                         echo "Building version ${appVersion}"
                     }
                 }
