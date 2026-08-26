@@ -27,14 +27,12 @@ def call (Map configMap){
         stages {
             stage('read-version'){
                 steps{
-                    dir("${configMap.component}") {
-                        script {
-                            appVersion = sh(
-                                script: "cat version.txt",
-                                returnStdout: true
-                            ).trim()
-                            echo "Building version ${appVersion}"
-                        }
+                    script {
+                        appVersion = sh(
+                            script: "cat version.txt",
+                            returnStdout: true
+                        ).trim()
+                        echo "Building version ${appVersion}"
                     }
                 }
             }
