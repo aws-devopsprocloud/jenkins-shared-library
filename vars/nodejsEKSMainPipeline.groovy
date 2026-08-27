@@ -58,7 +58,7 @@ def call (Map configMap){
                     [key: 'VERSION', value: '$.VERSION'],
                     [key: 'CR_NUMBER', value: '$.CR_NUMBER']
                 ],
-                tokenCredentialId: 'jira-token',
+                tokenCredentialId: 'jenkins-jira-2026',
                 causeString: 'Triggered by Jira Automation',
                 printContributedVariables: true,
                 printPostContent: true
