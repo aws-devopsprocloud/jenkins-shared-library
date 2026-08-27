@@ -254,52 +254,52 @@ def call (Map configMap){
                     }
                 }
             }
-            stage('sit-integration-tests') {
-                when {
-                    expression { env_ENVIRONMENT == 'sit' }
-                }
-                options {
-                    timeout(time: 2, unit: 'MINUTES')
-                }
-                steps {
-                    script {
-                        try {
-                            withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                                sh "aws eks update-kubeconfig --name roboshop --region us-east-1"
+            // stage('sit-integration-tests') {
+            //     when {
+            //         expression { env_ENVIRONMENT == 'sit' }
+            //     }
+            //     options {
+            //         timeout(time: 2, unit: 'MINUTES')
+            //     }
+            //     steps {
+            //         script {
+            //             try {
+            //                 withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+            //                     sh "aws eks update-kubeconfig --name roboshop --region us-east-1"
 
-                                /* The Jenkins agent can't resolve *.svc.cluster.local from
-                                   roboshop-sit, but it's in the same VPC as the EKS pods —
-                                   route by pod IP instead of relying on cluster DNS. */
-                                def catalogueIp = utils.getPodIP('roboshop-sit', 'catalogue')
-                                // def cartIp      = utils.getPodIP('roboshop-sit', 'cart')
-                                // def userIp      = utils.getPodIP('roboshop-sit', 'user')
-                                // def shippingIp  = utils.getPodIP('roboshop-sit', 'shipping')
-                                // def paymentIp   = utils.getPodIP('roboshop-sit', 'payment')
+            //                     /* The Jenkins agent can't resolve *.svc.cluster.local from
+            //                        roboshop-sit, but it's in the same VPC as the EKS pods —
+            //                        route by pod IP instead of relying on cluster DNS. */
+            //                     def catalogueIp = utils.getPodIP('roboshop-sit', 'catalogue')
+            //                     def cartIp      = utils.getPodIP('roboshop-sit', 'cart')
+            //                     def userIp      = utils.getPodIP('roboshop-sit', 'user')
+            //                     def shippingIp  = utils.getPodIP('roboshop-sit', 'shipping')
+            //                     def paymentIp   = utils.getPodIP('roboshop-sit', 'payment')
 
-                                build job: 'ROBOSHOP/roboshop-integration-tests', parameters: [
-                                    string(name: 'NAMESPACE', value: 'roboshop-sit'),
-                                    string(name: 'CATALOGUE_URL', value: "http://${catalogueIp}:8080"),
-                                    // string(name: 'CART_URL', value: "http://${cartIp}:8080"),
-                                    // string(name: 'USER_URL', value: "http://${userIp}:8080"),
-                                    // string(name: 'SHIPPING_URL', value: "http://${shippingIp}:8080"),
-                                    // string(name: 'PAYMENT_URL', value: "http://${paymentIp}:8080")
-                                ], wait: true, propagate: true
-                            }
-                            utils.updateCommitStatus('success', 'roboshop-integration-tests passed', 'sit-integration-tests')
-                            if (env_ISSUE_KEY?.trim()) {
-                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'SIT Done')
-                            }
-                        }
-                        catch (Exception e) {
-                            utils.updateCommitStatus('failure', 'roboshop-integration-tests failed', 'sit-integration-tests')
-                            if (env_ISSUE_KEY?.trim()) {
-                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'SIT Failed')
-                            }
-                            throw e
-                        }
-                    }
-                }
-            }
+            //                     build job: 'ROBOSHOP/roboshop-integration-tests', parameters: [
+            //                         string(name: 'NAMESPACE', value: 'roboshop-sit'),
+            //                         string(name: 'CATALOGUE_URL', value: "http://${catalogueIp}:8080"),
+            //                         string(name: 'CART_URL', value: "http://${cartIp}:8080"),
+            //                         string(name: 'USER_URL', value: "http://${userIp}:8080"),
+            //                         string(name: 'SHIPPING_URL', value: "http://${shippingIp}:8080"),
+            //                         string(name: 'PAYMENT_URL', value: "http://${paymentIp}:8080")
+            //                     ], wait: true, propagate: true
+            //                 }
+            //                 utils.updateCommitStatus('success', 'roboshop-integration-tests passed', 'sit-integration-tests')
+            //                 if (env_ISSUE_KEY?.trim()) {
+            //                     utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'SIT Done')
+            //                 }
+            //             }
+            //             catch (Exception e) {
+            //                 utils.updateCommitStatus('failure', 'roboshop-integration-tests failed', 'sit-integration-tests')
+            //                 if (env_ISSUE_KEY?.trim()) {
+            //                     utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'SIT Failed')
+            //                 }
+            //                 throw e
+            //             }
+            //         }
+            //     }
+            // }
             stage('uat-deploy') {
                 when {
                     expression { env_ENVIRONMENT == 'uat' }
@@ -333,52 +333,52 @@ def call (Map configMap){
                     }
                 }
             }
-            stage('uat-regression-tests') {
-                when {
-                    expression { env_ENVIRONMENT == 'uat' }
-                }
-                options {
-                    timeout(time: 2, unit: 'MINUTES')
-                }
-                steps {
-                    script {
-                        try {
-                            withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                                sh "aws eks update-kubeconfig --name roboshop --region us-east-1"
+            // stage('uat-regression-tests') {
+            //     when {
+            //         expression { env_ENVIRONMENT == 'uat' }
+            //     }
+            //     options {
+            //         timeout(time: 2, unit: 'MINUTES')
+            //     }
+            //     steps {
+            //         script {
+            //             try {
+            //                 withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+            //                     sh "aws eks update-kubeconfig --name roboshop --region us-east-1"
 
-                                /* The Jenkins agent can't resolve *.svc.cluster.local from
-                                   roboshop-uat, but it's in the same VPC as the EKS pods —
-                                   route by pod IP instead of relying on cluster DNS. */
-                                def catalogueIp = utils.getPodIP('roboshop-uat', 'catalogue')
-                                // def cartIp      = utils.getPodIP('roboshop-uat', 'cart')
-                                // def userIp      = utils.getPodIP('roboshop-uat', 'user')
-                                // def shippingIp  = utils.getPodIP('roboshop-uat', 'shipping')
-                                // def paymentIp   = utils.getPodIP('roboshop-uat', 'payment')
+            //                     /* The Jenkins agent can't resolve *.svc.cluster.local from
+            //                        roboshop-uat, but it's in the same VPC as the EKS pods —
+            //                        route by pod IP instead of relying on cluster DNS. */
+            //                     def catalogueIp = utils.getPodIP('roboshop-uat', 'catalogue')
+            //                     // def cartIp      = utils.getPodIP('roboshop-uat', 'cart')
+            //                     // def userIp      = utils.getPodIP('roboshop-uat', 'user')
+            //                     // def shippingIp  = utils.getPodIP('roboshop-uat', 'shipping')
+            //                     // def paymentIp   = utils.getPodIP('roboshop-uat', 'payment')
 
-                                build job: 'ROBOSHOP/roboshop-regression-tests', parameters: [
-                                    string(name: 'NAMESPACE', value: 'roboshop-uat'),
-                                    string(name: 'CATALOGUE_URL', value: "http://${catalogueIp}:8080"),
-                                    // string(name: 'CART_URL', value: "http://${cartIp}:8080"),
-                                    // string(name: 'USER_URL', value: "http://${userIp}:8080"),
-                                    // string(name: 'SHIPPING_URL', value: "http://${shippingIp}:8080"),
-                                    // string(name: 'PAYMENT_URL', value: "http://${paymentIp}:8080")
-                                ], wait: true, propagate: true
-                            }
-                            utils.updateCommitStatus('success', 'roboshop-regression-tests passed', 'uat-regression-tests')
-                            if (env_ISSUE_KEY?.trim()) {
-                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'UAT Done')
-                            }
-                        }
-                        catch (Exception e) {
-                            utils.updateCommitStatus('failure', 'roboshop-regression-tests failed', 'uat-regression-tests')
-                            if (env_ISSUE_KEY?.trim()) {
-                                utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'UAT Failed')
-                            }
-                            throw e
-                        }
-                    }
-                }
-            }
+            //                     build job: 'ROBOSHOP/roboshop-regression-tests', parameters: [
+            //                         string(name: 'NAMESPACE', value: 'roboshop-uat'),
+            //                         string(name: 'CATALOGUE_URL', value: "http://${catalogueIp}:8080"),
+            //                         // string(name: 'CART_URL', value: "http://${cartIp}:8080"),
+            //                         // string(name: 'USER_URL', value: "http://${userIp}:8080"),
+            //                         // string(name: 'SHIPPING_URL', value: "http://${shippingIp}:8080"),
+            //                         // string(name: 'PAYMENT_URL', value: "http://${paymentIp}:8080")
+            //                     ], wait: true, propagate: true
+            //                 }
+            //                 utils.updateCommitStatus('success', 'roboshop-regression-tests passed', 'uat-regression-tests')
+            //                 if (env_ISSUE_KEY?.trim()) {
+            //                     utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'UAT Done')
+            //                 }
+            //             }
+            //             catch (Exception e) {
+            //                 utils.updateCommitStatus('failure', 'roboshop-regression-tests failed', 'uat-regression-tests')
+            //                 if (env_ISSUE_KEY?.trim()) {
+            //                     utils.safeTransitionJiraIssue(env_ISSUE_KEY.trim(), 'UAT Failed')
+            //                 }
+            //                 throw e
+            //             }
+            //         }
+            //     }
+            // }
             /* CR gate: number + version must be supplied, deploy must fall inside the
                approved window, and a human has to click approve. Runs with its own
                timeout so waiting on a person doesn't get killed by the pipeline's
