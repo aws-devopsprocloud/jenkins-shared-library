@@ -30,12 +30,12 @@ def call (Map configMap){
             def env_ISSUE_KEY = ""
             def env_VERSION = ""
             def env_CR_NUMBER = ""
-            acc_id = "160885265516"
+            acc_id = "453531893439"
             project = configMap.get("project")
             component = configMap.get("component")
-            org = "90s-org"
+            org = "aws-devopsprocloud"
             JIRA_SITE = "roboshop-jira"
-            jiraProjectKey = "DAWS90S"
+            jiraProjectKey = "DEVOPSPRO"
         }
         options {
             disableConcurrentBuilds()
@@ -58,7 +58,7 @@ def call (Map configMap){
                     [key: 'VERSION', value: '$.VERSION'],
                     [key: 'CR_NUMBER', value: '$.CR_NUMBER']
                 ],
-                tokenCredentialId: 'jira-secret',
+                tokenCredentialId: 'jira-token',
                 causeString: 'Triggered by Jira Automation',
                 printContributedVariables: true,
                 printPostContent: true
