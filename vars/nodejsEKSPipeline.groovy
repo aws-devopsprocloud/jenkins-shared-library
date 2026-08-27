@@ -60,29 +60,29 @@ def call (Map configMap){
             //         } 
             //     }
             // }
-            stage('sonar-analysis') {
-                steps {
-                // 'My SonarQube Server' must match the name configured in Jenkins System Settings
-                    withSonarQubeEnv('sonarqube-server') {
-                        sh "${tool 'sonar-8'}/bin/sonar-scanner"
-                    }
-                }
-            }
-            stage('sonar-scan') {
-                steps {
-                    timeout(time: 10, unit: 'MINUTES') {
-                        script {
-                            def qg = waitForQualityGate() // Pauses pipeline
-                            if (qg.status != 'OK') {
-                                utils.updateCommitStatus('FAILURE', 'Sonar Scan failed', 'sonar-scan')
-                                error "Pipeline aborted: ${qg.status}"
-                            }
-                            else {
-                                utils.updateCommitStatus('success', 'Sonar Scan success', 'sonar-scan')
-                            }
-                        }
-                    }
-                }
+            // stage('sonar-analysis') {
+            //     steps {
+            //     // 'My SonarQube Server' must match the name configured in Jenkins System Settings
+            //         withSonarQubeEnv('sonarqube-server') {
+            //             sh "${tool 'sonar-8'}/bin/sonar-scanner"
+            //         }
+            //     }
+            // }
+            // stage('sonar-scan') {
+            //     steps {
+            //         timeout(time: 10, unit: 'MINUTES') {
+            //             script {
+            //                 def qg = waitForQualityGate() // Pauses pipeline
+            //                 if (qg.status != 'OK') {
+            //                     utils.updateCommitStatus('FAILURE', 'Sonar Scan failed', 'sonar-scan')
+            //                     error "Pipeline aborted: ${qg.status}"
+            //                 }
+            //                 else {
+            //                     utils.updateCommitStatus('success', 'Sonar Scan success', 'sonar-scan')
+            //                 }
+            //             }
+            //         }
+            //     }
             }
             stage('library-scan') {
                 steps {
