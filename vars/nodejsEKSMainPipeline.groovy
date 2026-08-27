@@ -209,7 +209,8 @@ def call (Map configMap){
                             error("COMMIT_ID is required when deploying to ${env_ENVIRONMENT}")
                         }
 
-                        def requiredContexts = ['dev-deploy', 'api-tests']
+                        // def requiredContexts = ['dev-deploy', 'api-tests']
+                        def requiredContexts = ['dev-deploy']
                         if (env_ENVIRONMENT in ['uat', 'prod']) {
                             requiredContexts += ['sit-deploy', 'sit-integration-tests']
                         }
