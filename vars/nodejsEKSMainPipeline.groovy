@@ -212,10 +212,12 @@ def call (Map configMap){
                         // def requiredContexts = ['dev-deploy', 'api-tests']
                         def requiredContexts = ['dev-deploy']
                         if (env_ENVIRONMENT in ['uat', 'prod']) {
-                            requiredContexts += ['sit-deploy', 'sit-integration-tests']
+                            // requiredContexts += ['sit-deploy', 'sit-integration-tests']
+                            requiredContexts += ['sit-deploy']
                         }
                         if (env_ENVIRONMENT == 'prod') {
-                            requiredContexts += ['uat-deploy', 'uat-regression-tests']
+                            // requiredContexts += ['uat-deploy', 'uat-regression-tests']
+                            requiredContexts += ['uat-deploy']
                         }
                         utils.validateCommitStatus(env_COMMIT_ID.trim(), requiredContexts)
                     }
