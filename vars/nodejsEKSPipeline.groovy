@@ -83,7 +83,7 @@ def call (Map configMap){
             //             }
             //         }
             //     }
-            }
+            // }
             stage('library-scan') {
                 steps {
                     script {
