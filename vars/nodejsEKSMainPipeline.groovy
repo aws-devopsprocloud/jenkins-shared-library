@@ -2,7 +2,7 @@ def call (Map configMap){
     pipeline {
         agent {
             node {
-                label 'ROBOSHOP'
+                label 'Agent-1'
             }
         }
         parameters {
